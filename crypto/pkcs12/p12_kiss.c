@@ -9,7 +9,10 @@
 
 #include <stdio.h>
 #include "internal/cryptlib.h"
+#include <stdio.h>
+#include <openssl/err.h>
 #include <openssl/pkcs12.h>
+#include <openssl/x509.h>
 #include "crypto/x509.h" /* for ossl_x509_add_cert_new() */
 
 /* Simplified PKCS#12 routines */
@@ -32,32 +35,31 @@ static int parse_bag(PKCS12_SAFEBAG *bag, const char *pass, int passlen,
  * if non-NULL the variables they point to can be passed uninitialised.
  */
 
+
 int PKCS12_parse(PKCS12 *p12, const char *pass, EVP_PKEY **pkey, X509 **cert,
-                 STACK_OF(X509) **ca)
+                 STACK_OF(X509) **ca, STACK_OF(X509_CRL) **crl)
 {
     STACK_OF(X509) *ocerts = NULL;
+    STACK_OF(X509_CRL) *ocrls = NULL;
     X509 *x = NULL;
 
     if (pkey != NULL)
         *pkey = NULL;
     if (cert != NULL)
         *cert = NULL;
+    if (ca != NULL)
+        *ca = NULL;
+    if (crl != NULL)
+        *crl = NULL;
 
     /* Check for NULL PKCS12 structure */
-
     if (p12 == NULL) {
         ERR_raise(ERR_LIB_PKCS12, PKCS12_R_INVALID_NULL_PKCS12_POINTER);
         return 0;
     }
 
-    /* Check the mac */
+    /* Check the MAC */
     if (PKCS12_mac_present(p12)) {
-        /*
-         * If password is zero length or NULL then try verifying both cases to
-         * determine which password is correct. The reason for this is that under
-         * PKCS#12 password based encryption no password and a zero length
-         * password are two different things...
-         */
         if (pass == NULL || *pass == '\0') {
             if (PKCS12_verify_mac(p12, NULL, 0))
                 pass = NULL;
@@ -82,7 +84,12 @@ int PKCS12_parse(PKCS12 *p12, const char *pass, EVP_PKEY **pkey, X509 **cert,
         goto err;
     }
 
-    if (!parse_pk12(p12, pass, -1, pkey, ocerts)) {
+    if (crl != NULL && (ocrls = sk_X509_CRL_new_null()) == NULL) {
+        ERR_raise(ERR_LIB_PKCS12, ERR_R_CRYPTO_LIB);
+        goto err;
+    }
+
+    if (!parse_pk12(p12, pass, pkey, ocerts, ocrls)) {
         int err = ERR_peek_last_error();
 
         if (ERR_GET_LIB(err) != ERR_LIB_EVP

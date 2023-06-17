@@ -288,7 +288,7 @@ DECLARE_ASN1_ITEM(PKCS12_AUTHSAFES)
 
 void PKCS12_PBE_add(void);
 int PKCS12_parse(PKCS12 *p12, const char *pass, EVP_PKEY **pkey, X509 **cert,
-                 STACK_OF(X509) **ca);
+                 STACK_OF(X509) **ca, STACK_OF(X509_CRL) **crl);
 typedef int PKCS12_create_cb(PKCS12_SAFEBAG *bag, void *cbarg);
 PKCS12 *PKCS12_create(const char *pass, const char *name, EVP_PKEY *pkey,
                       X509 *cert, STACK_OF(X509) *ca, int nid_key, int nid_cert,

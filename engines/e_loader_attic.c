@@ -337,7 +337,7 @@ static OSSL_STORE_INFO *try_decode_PKCS12(const char *pem_name,
                 }
             }
 
-            if (PKCS12_parse(p12, pass, &pkey, &cert, &chain)) {
+            if (PKCS12_parse(p12, pass, &pkey, &cert, &chain, NULL)) {
                 OSSL_STORE_INFO *osi_pkey = NULL;
                 OSSL_STORE_INFO *osi_cert = NULL;
                 OSSL_STORE_INFO *osi_ca = NULL;

@@ -26,7 +26,7 @@ static OSSL_PROVIDER *nullprov = NULL;
 
 static int test_null_args(void)
 {
-    return TEST_false(PKCS12_parse(NULL, NULL, NULL, NULL, NULL));
+    return TEST_false(PKCS12_parse(NULL, NULL, NULL, NULL, NULL, NULL));
 }
 
 static PKCS12 *PKCS12_load(const char *fpath)
@@ -80,7 +80,7 @@ static int changepass(PKCS12 *p12, EVP_PKEY *key, X509 *cert, STACK_OF(X509) *ca
         goto err;
     if (!TEST_ptr(d2i_PKCS12_bio(bio, &p12new)))
         goto err;
-    if (!TEST_true(PKCS12_parse(p12new, "NEWPASS", &key2, &cert2, &ca2)))
+    if (!TEST_true(PKCS12_parse(p12new, "NEWPASS", &key2, &cert2, &ca2, NULL)))
         goto err;
     if (has_key) {
         if (!TEST_ptr(key2) || !TEST_int_eq(EVP_PKEY_eq(key, key2), 1))
@@ -113,7 +113,7 @@ static int pkcs12_parse_test(void)
         if (!TEST_ptr(p12))
             goto err;
 
-        if (!TEST_true(PKCS12_parse(p12, in_pass, &key, &cert, &ca)))
+        if (!TEST_true(PKCS12_parse(p12, in_pass, &key, &cert, &ca, NULL)))
             goto err;
 
         if ((has_key && !TEST_ptr(key)) || (!has_key && !TEST_ptr_null(key)))
@@ -147,7 +147,7 @@ static PKCS12 *pkcs12_create_ex2_setup(EVP_PKEY **key, X509 **cert, STACK_OF(X50
     if (!TEST_ptr(p12))
         goto err;
 
-    if (!TEST_true(PKCS12_parse(p12, "", key, cert, ca)))
+    if (!TEST_true(PKCS12_parse(p12, "", key, cert, ca, NULL)))
         goto err;
 
     return p12;

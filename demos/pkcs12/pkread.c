@@ -71,7 +71,7 @@ int main(int argc, char **argv)
         ERR_print_errors_fp(stderr);
         goto err;
     }
-    if (!PKCS12_parse(p12, argv[2], &pkey, &cert, &ca)) {
+    if (!PKCS12_parse(p12, argv[2], &pkey, &cert, &ca, NULL)) {
         fprintf(stderr, "Error parsing PKCS#12 file\n");
         ERR_print_errors_fp(stderr);
         goto err;

@@ -587,7 +587,7 @@ static int try_pkcs12(struct extracted_param_data_st *data, OSSL_STORE_INFO **v,
                 }
             }
 
-            if (PKCS12_parse(p12, pass, &pkey, &cert, &chain)) {
+            if (PKCS12_parse(p12, pass, &pkey, &cert, &chain, NULL)) {
                 STACK_OF(OSSL_STORE_INFO) *infos = NULL;
                 OSSL_STORE_INFO *osi_pkey = NULL;
                 OSSL_STORE_INFO *osi_cert = NULL;
